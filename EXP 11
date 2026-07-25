@@ -1,0 +1,20 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+int main() {
+    string plaintext = "COMPUTER";
+    string key = "A1B2C3D4";
+
+    cout << "Plaintext : " << plaintext << endl;
+    cout << "Key : " << key << endl;
+
+    cout << "Ciphertext (Hex) : ";
+
+    for (int i = 0; i < plaintext.length(); i++) {
+        int c = plaintext[i] ^ key[i];
+        cout << hex << uppercase << setw(2) << setfill('0') << c;
+    }
+
+    return 0;
+}
