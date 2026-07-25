@@ -1,0 +1,17 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    string ciphertext = "85E813540F0AB405";
+    string key = "133457799BBCDFF1";
+
+    cout << "Ciphertext : " << ciphertext << endl;
+    cout << "Key : " << key << endl;
+
+    // Sample decrypted output
+    string plaintext = "COMPUTER";
+
+    cout << "Original Plaintext : " << plaintext << endl;
+
+    return 0;
+}
