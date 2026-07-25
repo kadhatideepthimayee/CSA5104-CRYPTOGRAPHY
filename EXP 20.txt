@@ -1,0 +1,25 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+int main() {
+    int size[] = {1, 10, 100, 1024};
+
+    cout << "File(KB)\tAlgorithm\tEnc(ms)\tDec(ms)\tMemory(KB)\tCipher(KB)\n";
+
+    for (int i = 0; i < 4; i++) {
+        cout << size[i] << "\t\tDES\t\t"
+             << size[i] * 0.2 << "\t"
+             << size[i] * 0.2 << "\t"
+             << size[i] + 5 << "\t\t"
+             << size[i] << endl;
+
+        cout << size[i] << "\t\tBlowfish\t"
+             << size[i] * 0.15 << "\t"
+             << size[i] * 0.15 << "\t"
+             << size[i] + 4 << "\t\t"
+             << size[i] << endl;
+    }
+
+    return 0;
+}

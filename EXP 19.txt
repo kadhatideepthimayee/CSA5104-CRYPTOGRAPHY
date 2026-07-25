@@ -1,0 +1,23 @@
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+int main() {
+    ifstream inFile("encrypted.txt");
+    ofstream outFile("decrypted.txt");
+
+    char ch;
+    char key = 'B';   // Same key used for encryption
+
+    while (inFile.get(ch)) {
+        ch = ch ^ key;      // Decrypt
+        outFile.put(ch);
+    }
+
+    inFile.close();
+    outFile.close();
+
+    cout << "File decrypted successfully.";
+
+    return 0;
+}

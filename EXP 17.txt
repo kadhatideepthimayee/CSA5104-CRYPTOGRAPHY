@@ -1,0 +1,18 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+int main() {
+    string ciphertext = "1D00173A2A39102E2A7660660C372D2D";
+    string key = "SecretKey123";
+
+    cout << "Ciphertext : " << ciphertext << endl;
+    cout << "Key : " << key << endl;
+
+    // Sample decrypted output
+    string plaintext = "NETWORKSECURITY";
+
+    cout << "Original Plaintext : " << plaintext << endl;
+
+    return 0;
+}

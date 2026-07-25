@@ -1,0 +1,23 @@
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+int main() {
+    ifstream inFile("input.txt");
+    ofstream outFile("encrypted.txt");
+
+    char ch;
+    char key = 'K';   // Simple key
+
+    while (inFile.get(ch)) {
+        ch = ch ^ key;      // Encrypt using XOR
+        outFile.put(ch);
+    }
+
+    inFile.close();
+    outFile.close();
+
+    cout << "File encrypted successfully.";
+
+    return 0;
+}
