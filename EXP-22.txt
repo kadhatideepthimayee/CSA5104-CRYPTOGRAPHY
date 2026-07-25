@@ -1,0 +1,154 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+// Encode message with password
+void encode(string inputImage, string outputImage, string password, string message)
+{
+    ifstream inFile(inputImage, ios::binary);
+    ofstream outFile(outputImage, ios::binary);
+
+    if (!inFile || !outFile)
+    {
+        cout << "Error opening file!" << endl;
+        return;
+    }
+
+    vector<char> imageData((istreambuf_iterator<char>(inFile)),
+                           istreambuf_iterator<char>());
+
+    int index = 54; // Skip BMP header
+
+    // Store password + delimiter + message + delimiter
+    string data = password + "|" + message + "#";
+
+    for (char ch : data)
+    {
+        for (int i = 7; i >= 0; i--)
+        {
+            int bit = (ch >> i) & 1;
+            imageData[index] = (imageData[index] & 0xFE) | bit;
+            index++;
+        }
+    }
+
+    outFile.write(imageData.data(), imageData.size());
+
+    cout << "Message hidden successfully!" << endl;
+
+    inFile.close();
+    outFile.close();
+}
+
+// Decode message
+void decode(string imageFile)
+{
+    ifstream inFile(imageFile, ios::binary);
+
+    if (!inFile)
+    {
+        cout << "Error opening file!" << endl;
+        return;
+    }
+
+    vector<char> imageData((istreambuf_iterator<char>(inFile)),
+                           istreambuf_iterator<char>());
+
+    int index = 54;
+    string extracted = "";
+
+    while (true)
+    {
+        char ch = 0;
+
+        for (int i = 7; i >= 0; i--)
+        {
+            int bit = imageData[index] & 1;
+            ch |= (bit << i);
+            index++;
+        }
+
+        if (ch == '#')
+            break;
+
+        extracted += ch;
+    }
+
+    size_t pos = extracted.find('|');
+
+    if (pos == string::npos)
+    {
+        cout << "Invalid stego image!" << endl;
+        return;
+    }
+
+    string storedPassword = extracted.substr(0, pos);
+    string hiddenMessage = extracted.substr(pos + 1);
+
+    string enteredPassword;
+
+    cout << "Enter Password: ";
+    cin >> enteredPassword;
+
+    if (enteredPassword == storedPassword)
+    {
+        cout << "Access Granted!" << endl;
+        cout << "Hidden Message: " << hiddenMessage << endl;
+    }
+    else
+    {
+        cout << "Incorrect Password! Access Denied." << endl;
+    }
+
+    inFile.close();
+}
+
+int main()
+{
+    int choice;
+
+    cout << "1. Encode" << endl;
+    cout << "2. Decode" << endl;
+    cout << "Enter Choice: ";
+    cin >> choice;
+
+    if (choice == 1)
+    {
+        string inputImage, outputImage;
+        string password, message;
+
+        cout << "Input BMP Image: ";
+        cin >> inputImage;
+
+        cout << "Output BMP Image: ";
+        cin >> outputImage;
+
+        cout << "Enter Password: ";
+        cin >> password;
+
+        cin.ignore();
+
+        cout << "Enter Secret Message: ";
+        getline(cin, message);
+
+        encode(inputImage, outputImage, password, message);
+    }
+    else if (choice == 2)
+    {
+        string imageFile;
+
+        cout << "Enter Stego BMP Image: ";
+        cin >> imageFile;
+
+        decode(imageFile);
+    }
+    else
+    {
+        cout << "Invalid Choice!" << endl;
+    }
+
+    return 0;
+}

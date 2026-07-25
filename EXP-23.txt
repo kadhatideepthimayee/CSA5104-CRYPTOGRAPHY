@@ -1,0 +1,131 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+// Encode message into WAV file
+void encode(string inputAudio, string outputAudio, string message)
+{
+    ifstream inFile(inputAudio, ios::binary);
+    ofstream outFile(outputAudio, ios::binary);
+
+    if (!inFile || !outFile)
+    {
+        cout << "Error opening file!" << endl;
+        return;
+    }
+
+    // Read entire audio file
+    vector<char> audioData((istreambuf_iterator<char>(inFile)),
+                            istreambuf_iterator<char>());
+
+    // WAV header size = 44 bytes
+    int index = 44;
+
+    // End marker
+    message += "#";
+
+    for (char ch : message)
+    {
+        for (int i = 7; i >= 0; i--)
+        {
+            int bit = (ch >> i) & 1;
+
+            audioData[index] = (audioData[index] & 0xFE) | bit;
+
+            index++;
+        }
+    }
+
+    outFile.write(audioData.data(), audioData.size());
+
+    cout << "Message hidden successfully!" << endl;
+
+    inFile.close();
+    outFile.close();
+}
+
+// Decode message from WAV file
+void decode(string audioFile)
+{
+    ifstream inFile(audioFile, ios::binary);
+
+    if (!inFile)
+    {
+        cout << "Error opening file!" << endl;
+        return;
+    }
+
+    vector<char> audioData((istreambuf_iterator<char>(inFile)),
+                            istreambuf_iterator<char>());
+
+    int index = 44;
+
+    string message = "";
+
+    while (true)
+    {
+        char ch = 0;
+
+        for (int i = 7; i >= 0; i--)
+        {
+            int bit = audioData[index] & 1;
+            ch |= (bit << i);
+            index++;
+        }
+
+        if (ch == '#')
+            break;
+
+        message += ch;
+    }
+
+    cout << "Hidden Message: " << message << endl;
+
+    inFile.close();
+}
+
+int main()
+{
+    int choice;
+
+    cout << "1. Encode" << endl;
+    cout << "2. Decode" << endl;
+    cout << "Enter Choice: ";
+    cin >> choice;
+
+    if (choice == 1)
+    {
+        string inputAudio, outputAudio, message;
+
+        cout << "Input WAV File: ";
+        cin >> inputAudio;
+
+        cout << "Output WAV File: ";
+        cin >> outputAudio;
+
+        cin.ignore();
+
+        cout << "Enter Secret Message: ";
+        getline(cin, message);
+
+        encode(inputAudio, outputAudio, message);
+    }
+    else if (choice == 2)
+    {
+        string audioFile;
+
+        cout << "Enter Stego WAV File: ";
+        cin >> audioFile;
+
+        decode(audioFile);
+    }
+    else
+    {
+        cout << "Invalid Choice!" << endl;
+    }
+
+    return 0;
+}

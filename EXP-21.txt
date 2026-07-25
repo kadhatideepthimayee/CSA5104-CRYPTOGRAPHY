@@ -1,0 +1,132 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+// Function to encode message into image
+void encode(string inputImage, string outputImage, string message)
+{
+    ifstream inFile(inputImage, ios::binary);
+    ofstream outFile(outputImage, ios::binary);
+
+    if (!inFile || !outFile)
+    {
+        cout << "Error opening file!" << endl;
+        return;
+    }
+
+    // Read entire image
+    vector<char> imageData((istreambuf_iterator<char>(inFile)),
+                            istreambuf_iterator<char>());
+
+    // BMP header is 54 bytes
+    int dataIndex = 54;
+
+    // Add delimiter
+    message += "#";
+
+    for (char ch : message)
+    {
+        for (int i = 7; i >= 0; i--)
+        {
+            int bit = (ch >> i) & 1;
+
+            imageData[dataIndex] =
+                (imageData[dataIndex] & 0xFE) | bit;
+
+            dataIndex++;
+        }
+    }
+
+    outFile.write(imageData.data(), imageData.size());
+
+    cout << "Message successfully hidden!" << endl;
+
+    inFile.close();
+    outFile.close();
+}
+
+// Function to decode message
+void decode(string imageFile)
+{
+    ifstream inFile(imageFile, ios::binary);
+
+    if (!inFile)
+    {
+        cout << "Cannot open file!" << endl;
+        return;
+    }
+
+    vector<char> imageData((istreambuf_iterator<char>(inFile)),
+                            istreambuf_iterator<char>());
+
+    int dataIndex = 54;
+
+    string message = "";
+
+    while (true)
+    {
+        char ch = 0;
+
+        for (int i = 7; i >= 0; i--)
+        {
+            int bit = imageData[dataIndex] & 1;
+            ch |= (bit << i);
+            dataIndex++;
+        }
+
+        if (ch == '#')
+            break;
+
+        message += ch;
+    }
+
+    cout << "Hidden Message: " << message << endl;
+
+    inFile.close();
+}
+
+int main()
+{
+    int choice;
+
+    cout << "1. Encode\n";
+    cout << "2. Decode\n";
+    cout << "Enter Choice: ";
+    cin >> choice;
+
+    if (choice == 1)
+    {
+        string inputImage, outputImage, message;
+
+        cout << "Input BMP Image: ";
+        cin >> inputImage;
+
+        cout << "Output BMP Image: ";
+        cin >> outputImage;
+
+        cin.ignore();
+
+        cout << "Enter Secret Message: ";
+        getline(cin, message);
+
+        encode(inputImage, outputImage, message);
+    }
+    else if (choice == 2)
+    {
+        string imageFile;
+
+        cout << "Enter Stego BMP Image: ";
+        cin >> imageFile;
+
+        decode(imageFile);
+    }
+    else
+    {
+        cout << "Invalid Choice!" << endl;
+    }
+
+    return 0;
+}
